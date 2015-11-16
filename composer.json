@@ -1,7 +1,8 @@
 {
     "require": {
-        "dsv-su/daisy-api-client-php": "~1.0",
-        "guzzlehttp/guzzle": "~6.0"
+        "dsv-su/daisy-api-client-php": "^1.0",
+        "guzzlehttp/guzzle": "^6.0",
+        "dsv-su/strict-mode-php": "^1.0"
     },
     "autoload": {
         "psr-4": {

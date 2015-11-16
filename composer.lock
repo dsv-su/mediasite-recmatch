@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "c5326dcd888670f5857c661beb55f67d",
-    "content-hash": "d28fd6bb7761e33b31378a0df57f81c2",
+    "hash": "f7dc9ca65fe42d256a905567b3b42b70",
+    "content-hash": "219f803c3e69738964ac40fcebf1ad01",
     "packages": [
         {
             "name": "dsv-su/daisy-api-client-php",
@@ -53,6 +53,39 @@
             ],
             "description": "Daisy API client for PHP",
             "time": "2015-11-03 13:07:27"
+        },
+        {
+            "name": "dsv-su/strict-mode-php",
+            "version": "1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/dsv-su/strict-mode-php.git",
+                "reference": "4ca28389deb772c10af8f6f9823151efe815da3f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/dsv-su/strict-mode-php/zipball/4ca28389deb772c10af8f6f9823151efe815da3f",
+                "reference": "4ca28389deb772c10af8f6f9823151efe815da3f",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "strict-mode.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Per Olofsson",
+                    "email": "pelle@dsv.su.se"
+                }
+            ],
+            "description": "Enable strict error handling in PHP",
+            "time": "2015-09-11 17:26:08"
         },
         {
             "name": "giggsey/libphonenumber-for-php",
