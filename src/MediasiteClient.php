@@ -1,65 +1,102 @@
 <?php
 
-class MediasiteClient {
-    function __construct($args) {
-        $this->client = new GuzzleHttp\Client(
+use GuzzleHttp\Psr7;
+
+class MediasiteClient
+{
+    private static $guzzle;
+    private static $folders;
+
+    public static function init(array $config)
+    {
+        if (!isset($config)) {
+            $config = json_decode(file_get_contents('mediasite_api.json'));
+        }
+
+        self::$guzzle = new \GuzzleHttp\Client(
             [
-                'base_url' => $args['api_url'],
-                'defaults' => [
-                    'headers' => [
-                        'Accept' => 'application/json',
-                        'sfapikey' => $args['api_key']
-                    ],
-                    'auth' => [$args['user'], $args['pass']]
-                ]
+                'base_uri' => $config['uri'],
+                'headers' => [
+                    'Accept' => 'application/json',
+                    'sfapikey' => $config['key']
+                ],
+                'auth' => [$config['user'], $config['password']]
             ]
         );
     }
 
-    function getClient() {
-        return $this->client;
+    public static function initUsingConfigFile($file = 'mediasite_api.json')
+    {
+        $config = json_decode(file_get_contents($file), true);
+        self::init($config);
     }
 
-    function request($method, $url, $params) {
-        $request = $this->client->createRequest($method, $url, $params);
+    public static function getGuzzle()
+    {
+        if (!isset(self::$guzzle)) {
+            self::initUsingConfigFile();
+        }
+        return self::$guzzle;
+    }
+
+    public static function request($method, $url, array $params = []) {
+        $request = self::getGuzzle()->createRequest($method, $url, $params);
 
         echo "{$request->getMethod()} {$request->getUrl()}\n";
 
         if ($request->getMethod() != 'GET') {
             echo "Dry run, doing nothing.\n";
-            return NULL;
-        } else {
-            return $this->client->send($request)->json()['value'];
+            return null;
+        }
+        
+        $response = self::getGuzzle()->send($request);
+        
+        switch ($response->getStatusCode()) {
+            case 200:
+                return json_decode($response->getBody(), true)['value'];
+            case 404:
+                return null;
+            default:
+                $uri = Psr7\Uri::resolve(
+                    Psr7\uri_for(self::$guzzle->getConfig('base_uri')),
+                    $path
+                );
+                $uri = $uri->withQuery($query);
+                throw new ServerException(
+                    $response->getStatusCode()
+                    . " " . $response->getReasonPhrase()
+                    . ". URI: " . $uri
+                );
         }
     }
 
-    function get($url, $query = []) {
-        return $this->request('GET', $url, ['query' => $query]);
+    public function get($url, $query = []) {
+        return self::request('GET', $url, ['query' => $query]);
     }
 
     function getAll($objects) {
-        return $this->get($objects.'?$top=100000');
+        return self::get($objects, ['$top' => 100000]);
     }
 
     function findFolder($name, $parent_id) {
-        if (!isset($this->folders)) {
-            $this->folders = $this->getAll('Folders');
+        if (!isset(self::$folders)) {
+            self::$folders = self::getAll('Folders');
         }
 
-        foreach ($this->folders as $folder) {
+        foreach (self::$folders as $folder) {
             if ($folder['Name'] == $name &&
                 (empty($parent_id) || $folder['ParentFolderId'] == $parent_id)) {
                 return $folder['Id'];
             }
         }
-        return NULL;
+        return null;
     }
 
     function createFolder($name, $parent_id) {
-        return $this->request('POST', 'Folders', ['json' => [
-                                      'Name' => $name,
-                                      'ParentFolderId' => $parent_id,
-                                      'IsShared' => true
-                                  ]])->json()['Id'];
+        return self::request('POST', 'Folders', ['json' => [
+                                     'Name' => $name,
+                                     'ParentFolderId' => $parent_id,
+                                     'IsShared' => true
+                                 ]])['Id'];
     }
 }

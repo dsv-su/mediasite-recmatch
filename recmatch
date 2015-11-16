@@ -2,3 +2,7 @@
 <?php // -*- php -*-
 require 'vendor/autoload.php';
 
+use Yosymfony\Toml\Toml;
+
+$config = Toml::Parse('config.toml');
+
