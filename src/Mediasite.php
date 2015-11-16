@@ -20,7 +20,8 @@ class Mediasite
                     'Accept' => 'application/json',
                     'sfapikey' => $config['key']
                 ],
-                'auth' => [$config['user'], $config['password']]
+                'auth' => [$config['user'], $config['password']],
+                'http_errors' => false
             ]
         );
     }
@@ -39,21 +40,21 @@ class Mediasite
         return self::$guzzle;
     }
 
-    public static function request($method, $url, array $params = []) {
-        $request = self::getGuzzle()->createRequest($method, $url, $params);
+    public static function request($method, $url, array $query = []) {
+        echo "$method $url\n";
 
-        echo "{$request->getMethod()} {$request->getUrl()}\n";
-
-        if ($request->getMethod() != 'GET') {
+        if ($method != 'GET') {
             echo "Dry run, doing nothing.\n";
             return null;
         }
 
-        $response = self::getGuzzle()->send($request);
+        $response = self::getGuzzle()->request(
+            $method, $url, ['query' => $query]
+        );
 
         switch ($response->getStatusCode()) {
             case 200:
-                return json_decode($response->getBody(), true)['value'];
+                return json_decode($response->getBody(), true);
             case 404:
                 return null;
             default:
@@ -70,15 +71,15 @@ class Mediasite
         }
     }
 
-    public function get($url, $query = []) {
-        return self::request('GET', $url, ['query' => $query]);
+    public static function get($url, $query = []) {
+        return self::request('GET', $url, $query);
     }
 
-    function getAll($objects) {
+    public static function getAll($objects) {
         return self::get($objects, ['$top' => 100000]);
     }
 
-    function findFolder($name, $parent_id) {
+    public static function findFolder($name, $parent_id) {
         if (!isset(self::$folders)) {
             self::$folders = self::getAll('Folders');
         }
@@ -92,7 +93,7 @@ class Mediasite
         return null;
     }
 
-    function createFolder($name, $parent_id) {
+    public static function createFolder($name, $parent_id) {
         return self::request('POST', 'Folders', ['json' => [
                                      'Name' => $name,
                                      'ParentFolderId' => $parent_id,
