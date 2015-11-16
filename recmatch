@@ -1,0 +1,4 @@
+#!/usr/bin/env php
+<?php // -*- php -*-
+require 'vendor/autoload.php';
+
