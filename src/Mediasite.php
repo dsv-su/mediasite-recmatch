@@ -2,7 +2,7 @@
 
 use GuzzleHttp\Psr7;
 
-class MediasiteClient
+class Mediasite
 {
     private static $guzzle;
     private static $folders;
@@ -48,9 +48,9 @@ class MediasiteClient
             echo "Dry run, doing nothing.\n";
             return null;
         }
-        
+
         $response = self::getGuzzle()->send($request);
-        
+
         switch ($response->getStatusCode()) {
             case 200:
                 return json_decode($response->getBody(), true)['value'];
