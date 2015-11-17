@@ -1,5 +1,4 @@
 <?php
-
 use GuzzleHttp\Psr7;
 
 class Mediasite
@@ -75,8 +74,15 @@ class Mediasite
         return self::request('GET', $url, $query);
     }
 
-    public static function getAll($objects) {
-        return self::get($objects, ['$top' => 100000]);
+    public static function getAll($objects, array $query = []) {
+        $query['$top'] = 100000;
+        $result = self::get($objects, $query);
+        return $result['value'];
+    }
+
+    public static function getPresentationsInFolder($folder_id) {
+        return self::getAll("Folders('$folder_id')/Presentations",
+                            ['$select' => 'full']);
     }
 
     public static function findFolder($name, $parent_id) {

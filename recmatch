@@ -6,10 +6,6 @@ use Yosymfony\Toml\Toml;
 
 $config = Toml::Parse('config.toml');
 
-$dropoff_pres = Mediasite::get("Folders('" . $config['dropoff_folder'] . "')/Presentations");
+$matcher = new Matcher($config);
 
-foreach ($dropoff_pres['value'] as $pres_entry) {
-    $presentation = Mediasite::get("Presentations('" . $pres_entry['Id'] . "')",
-                                   ['$select' => 'full']);
-    print_r($presentation);
-}
+$matcher->run();
